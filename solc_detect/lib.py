@@ -14,6 +14,30 @@ from . import pragma_parser
 # from semantic_version import NpmSpec, Version
 
 
+class PragmaParser():
+    """Parse the pragma version of a Solidity smart contract."""
+
+    def __init__(self, input_file = None, content = None):
+        self.input_file = input_file
+        self.versions = []
+        if input_file and not content:
+            with open(input_file, 'r') as f:
+                self.content = f.read()
+        else:
+            self.content = content
+
+        if not self.content:
+            raise ValueError('No content to parse.')
+
+    def valid_versions(self) -> List[str]:
+        """Parse the Solidity version declared in pragma of a smart contract."""
+        return pragma_parser.parse_solidity_version_from_content(self.content)
+
+    def best_version(self) -> Union[str, None]:
+        """Return the best version of Solidity to compile the smart contract."""
+        versions = self.valid_versions()
+        return find_best_solc_version_for_pragma(versions or [])
+
 def init_all_solidity_versions() -> List[str]:
     """Enumerate all Solidity versions.
 
